@@ -1,25 +1,25 @@
+// src/app/api/bookings/route.ts
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const base = process.env.APIM_BASE_URL;
-  const key = process.env.APIM_SUBSCRIPTION_KEY;
+  const base = process.env.APIM_GATEWAY_URL!;
+  const key  = process.env.APIM_SUBSCRIPTION_KEY!;
+  const url  = `${base}/v1/bookings`;
 
-  if (!base || !key) {
+  const resp = await fetch(url, {
+    headers: { "Ocp-Apim-Subscription-Key": key },
+    // avoid caching while developing
+    cache: "no-store",
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
     return NextResponse.json(
-      { error: "Missing APIM_BASE_URL or APIM_SUBSCRIPTION_KEY" },
-      { status: 500 }
+      { error: `Upstream ${resp.status}: ${text}` },
+      { status: 502 }
     );
   }
 
-  try {
-    const response = await fetch(`${base}/v1/bookings`, {
-      headers: { "Ocp-Apim-Subscription-Key": key },
-      cache: "no-store",
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (err: any) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
-  }
+  const data = await resp.json();
+  return NextResponse.json(data);
 }

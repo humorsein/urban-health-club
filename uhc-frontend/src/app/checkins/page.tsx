@@ -1,33 +1,63 @@
-"use client";
-import { useEffect, useState } from "react";
+import React from "react";
+import { fetchFromAPIM } from "@/lib/api";
 
 type Checkin = {
   id: string;
   memberId: string;
-  location?: string;
-  timestamp?: string;
+  location: string;
+  time: string;
 };
 
-export default function CheckinsPage() {
-  const [data, setData] = useState<Checkin[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/checkins")
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.statusText)))
-      .then(setData)
-      .catch((e) => setError(String(e)));
-  }, []);
+export default async function CheckinsPage() {
+  let data: Checkin[] = [];
+  try {
+    data = await fetchFromAPIM("/v1/checkins");
+  } catch (e: any) {
+    return (
+      <main className="p-6">
+        <h1 className="text-2xl font-semibold mb-4">Check-ins</h1>
+        <div className="text-red-600">
+          Failed to load check-ins: {e.message}
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 12 }}>
-        Check-ins
-      </h1>
-      {error && <p style={{ color: "crimson" }}>Error: {error}</p>}
-      <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 8 }}>
-        {JSON.stringify(data, null, 2)}
-      </pre>
+    <main className="p-6">
+      <h1 className="text-2xl font-semibold mb-4">Check-ins</h1>
+      <div className="overflow-x-auto rounded border">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-3 py-2 text-left">ID</th>
+              <th className="px-3 py-2 text-left">Member</th>
+              <th className="px-3 py-2 text-left">Location</th>
+              <th className="px-3 py-2 text-left">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(data) && data.length > 0 ? (
+              data.map((c) => (
+                <tr key={c.id} className="border-t">
+                  <td className="px-3 py-2">{c.id}</td>
+                  <td className="px-3 py-2">{c.memberId}</td>
+                  <td className="px-3 py-2">{c.location}</td>
+                  <td className="px-3 py-2">
+                    {new Date(c.time).toLocaleString()}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-3 py-4 text-gray-500" colSpan={4}>
+                  No check-ins found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

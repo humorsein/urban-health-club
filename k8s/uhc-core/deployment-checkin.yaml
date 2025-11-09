@@ -13,14 +13,14 @@ spec:
     spec:
       containers:
         - name: checkin
-          image: docker.io/ealen/echo-server:latest
+          image: acruhcdev.azurecr.io/checkin:0.1
           ports: [{ containerPort: 80 }]
           readinessProbe:
-            httpGet: { path: "/", port: 80 }
+            httpGet: { path: "/healthz", port: 80 }
             initialDelaySeconds: 5
             periodSeconds: 5
           livenessProbe:
-            httpGet: { path: "/", port: 80 }
+            httpGet: { path: "/healthz", port: 80 }
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:

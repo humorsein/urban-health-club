@@ -2,19 +2,23 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-app.get('/healthz', (req,res)=>res.send('ok'));
-app.get('/v1/memberships', (req,res)=>{
-  // mock: later read from DB
-  res.json([{id:"m-001", userId:"u-123", status:"active", plan:"Basic"}]);
+app.get('/healthz', (req, res) => res.send('ok'));
+
+// Validate a QR/entry (mock):
+// GET /v1/checkins/validate?t=<token>&siteId=<site>
+app.get('/v1/checkins/validate', (req, res) => {
+  const { t, siteId } = req.query;
+  if (!t || !siteId) return res.status(400).json({ error: 'missing t or siteId' });
+  // TODO: verify token (Redis/JWT), check membership+booking, anti-fraud
+  return res.json({ valid: true, siteId, memberStatus: 'active', requiresBooking: false });
 });
 
-// simple token check (mock “QR token”)
-app.get('/v1/checkin-token/validate', (req,res)=>{
-  const t = req.query.t;
-  if (!t) return res.status(400).json({error:"missing t"});
-  // TODO: verify Redis/JWT etc.
-  return res.json({valid:true, memberStatus:"active"});
+// Record a check-in (mock)
+app.post('/v1/checkins', (req, res) => {
+  const payload = req.body || {};
+  // TODO: persist + emit CheckInRecorded event
+  res.status(201).json({ id: 'ci-001', ...payload, recordedAt: new Date().toISOString() });
 });
 
 const port = process.env.PORT || 80;
-app.listen(port, ()=>console.log(`membership up on ${port}`));
+app.listen(port, () => console.log(`checkin up on ${port}`));
