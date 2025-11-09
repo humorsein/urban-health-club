@@ -1,0 +1,36 @@
+# .github/workflows/deploy-uhc-core.yml
+name: Deploy UHC Core
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "k8s/uhc-core/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # Login to Azure (uses your AZURE_CREDENTIALS secret already added)
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Set AKS context
+      - uses: azure/aks-set-context@v4
+        with:
+          resource-group: rg-uhc-dev
+          cluster-name: aks-uhc-dev
+
+      # Install kubectl + kustomize and apply
+      - name: Deploy UHC Core
+        run: |
+          kubectl version --client
+          kubectl apply -k k8s/uhc-core/
+          kubectl -n uhc-core rollout status deploy/membership
+          kubectl -n uhc-core rollout status deploy/booking
+          kubectl -n uhc-core rollout status deploy/checkin
