@@ -1,0 +1,39 @@
+name: Test Azure Login
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/test-azure-login.yml"
+
+jobs:
+  test-login:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login (OIDC or Secret)
+        uses: azure/login@v2
+        with:
+          # Nutzt dein Repository-Secret "AZURE_CREDENTIALS"
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Show subscription info
+        run: |
+          set -euo pipefail
+          echo "Azure CLI version:"
+          az version
+          echo "Active subscription (sanity check):"
+          az account show --output table
+
+      # Optional: Existenz deiner RG prüfen (ersetze bei Bedarf)
+      - name: (Optional) Check resource group
+        env:
+          RG: rg-uhc-dev
+        run: |
+          set -euo pipefail
+          echo "Checking resource group: $RG"
+          az group show -n "$RG" --query "{name:name,location:location,exists:true}" -o table || echo "Resource group $RG not found (ok for login test)"
