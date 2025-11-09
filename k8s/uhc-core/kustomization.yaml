@@ -9,6 +9,3 @@ resources:
   - deployment-booking.yaml
   - deployment-checkin.yaml
   - ingress.yaml
-
-commonLabels:
-  app.kubernetes.io/part-of: uhc-core
