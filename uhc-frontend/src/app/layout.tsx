@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import Providers from '@/components/Providers';
 import ThemeToggle from '@/components/ThemeToggle';
+import AuthButtons from '@/components/AuthButtons';
 
 export const metadata: Metadata = {
   title: 'Urban Health Club Platform',
@@ -37,16 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/settings" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400">
                     Settings
                   </Link>
+                  <Link href="/billings" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400">
+                    Billings
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <ThemeToggle />
-                <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium
-                   bg-gray-50 text-gray-600 border-gray-200
-                   dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700
-                   whitespace-nowrap">
+              <div className="flex items-center gap-3">
+                <span className="hidden sm:inline text-sm text-gray-400 dark:text-gray-500">
                   connected to Azure APIM 🟢
                 </span>
+                <ThemeToggle />
+                <AuthButtons />
               </div>
             </nav>
           </header>

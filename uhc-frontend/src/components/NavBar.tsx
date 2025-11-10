@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { signIn, signOut } from "next-auth/react";
 
 type NavItem = { href: string; label: string };
 
@@ -109,6 +110,15 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <div className="mt-auto p-4 text-xs text-gray-400">connected to Azure APIM 🟢</div>
       </aside>
     </>
+  );
+}
+
+export function AuthButtons() {
+  return (
+    <div className="flex gap-2">
+      <button onClick={() => signIn("auth0")} className="px-3 py-1 border rounded">Sign in</button>
+      <button onClick={() => signOut()} className="px-3 py-1 border rounded">Sign out</button>
+    </div>
   );
 }
 
